@@ -57,7 +57,7 @@ void Job::doStart() {
 }
 
 void Job::emitFinished() {
-    emit finished( this );
+    emit _finished_internal( this );
     if ( d->autoDelete )
         deleteLater();
 }
@@ -159,7 +159,7 @@ void JobExecutor::startNextIfNoneRunning() {
         next = m_queue.dequeue();
     }
     if ( next ) {
-        connect( next, SIGNAL(finished(QKeychain::Job*)), this, SLOT(jobFinished(QKeychain::Job*)) );
+        connect( next, SIGNAL(_finished_internal(QKeychain::Job*)), this, SLOT(jobFinished(QKeychain::Job*)) );
         connect( next, SIGNAL(destroyed(QObject*)), this, SLOT(jobDestroyed(QObject*)) );
         m_jobRunning = true;
         next->scheduledStart();
@@ -178,6 +178,7 @@ void JobExecutor::jobFinished( Job* job ) {
     Q_UNUSED( job ) // for release mode
     job->disconnect( this );
     m_jobRunning = false;
+    emit job->finished(job);
     startNextIfNoneRunning();
 }
 

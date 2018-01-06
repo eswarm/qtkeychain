@@ -147,6 +147,7 @@ Q_SIGNALS:
      * You can connect to this signal to be notified about the job's completion.
      * @see start()
      */
+    void _finished_internal( QKeychain::Job* );
     void finished( QKeychain::Job* );
 
 protected:

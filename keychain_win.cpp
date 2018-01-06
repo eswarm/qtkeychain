@@ -14,6 +14,8 @@
 
 #include <memory>
 
+#include <QDebug>
+
 using namespace QKeychain;
 
 #if defined(USE_CREDENTIAL_STORE)
@@ -60,10 +62,18 @@ void WritePasswordJobPrivate::scheduledStart() {
     cred.CredentialBlob = (LPBYTE)pwd;
     cred.Persist = CRED_PERSIST_LOCAL_MACHINE;
 
-    if (!CredWriteW(&cred, 0)) {
-        q->emitFinishedWithError( OtherError, tr("Encryption failed") ); //TODO more details available?
-    } else {
-        q->emitFinished();
+
+    try {
+        if (!CredWriteW(&cred, 0)) {
+            int error = GetLastError();
+            qDebug() << "Error " << error;
+            q->emitFinishedWithError( OtherError, tr("Encryption failed") ); //TODO more details available?
+        } else {
+            q->emitFinished();
+        }
+    }
+    catch(std::exception e) {
+        qDebug() << e.what();
     }
 }
 
